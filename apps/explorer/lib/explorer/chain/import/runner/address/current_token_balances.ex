@@ -106,7 +106,7 @@ defmodule Explorer.Chain.Import.Runner.Address.CurrentTokenBalances do
       |> Map.put_new(:timeout, @timeout)
       |> Map.put(:timestamps, timestamps)
 
-    # order so that row ShareLocks are grabbed in a consistent order
+    # Enforce CurrentTokenBalance ShareLocks order (see docs: sharelocks.md)
     ordered_changes_list = Enum.sort_by(changes_list, &{&1.address_hash, &1.token_contract_address_hash})
 
     multi
