@@ -8,13 +8,34 @@ defmodule Explorer.ChainSpec.Parity.Importer do
   alias Explorer.Chain.Hash.Address, as: AddressHash
   alias Explorer.Chain.Wei
 
+  import Ecto.Query
+
   @max_block_number :infinity
 
   def import_emission_rewards(chain_spec) do
     rewards = emission_rewards(chain_spec)
 
-    {_, nil} = Repo.delete_all(EmissionReward)
-    {_, nil} = Repo.insert_all(EmissionReward, rewards)
+    inner_delete_query =
+      from(
+        emission_reward in EmissionReward,
+        # Enforce EmissionReward ShareLocks order (see docs: sharelocks.md)
+        order_by: emission_reward.block_range,
+        lock: "FOR UPDATE"
+      )
+
+    delete_query =
+      from(
+        e in EmissionReward,
+        join: s in subquery(inner_delete_query),
+        # we join on reward because it's faster and we have to delete them all anyway
+        on: e.reward == s.reward
+      )
+
+    # Enforce EmissionReward ShareLocks order (see docs: sharelocks.md)
+    ordered_rewards = Enum.sort_by(rewards, & &1.block_range)
+
+    {_, nil} = Repo.delete_all(delete_query)
+    {_, nil} = Repo.insert_all(EmissionReward, ordered_rewards)
   end
 
   def import_genesis_coin_balances(chain_spec) do
