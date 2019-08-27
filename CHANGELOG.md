@@ -12,6 +12,7 @@
 - [#2470](https://github.com/poanetwork/blockscout/pull/2470) - Allow Realtime Fetcher to wait for small skips
 
 ### Fixes
+- [#2635](https://github.com/poanetwork/blockscout/pull/2635) - optimize ERC721 inventory query
 - [#2591](https://github.com/poanetwork/blockscout/pull/2591) - Fix url error in API page
 - [#2619](https://github.com/poanetwork/blockscout/pull/2619) - Enforce DB transaction's order to prevent deadlocks
 - [#2623](https://github.com/poanetwork/blockscout/pull/2623) - fix a blinking test
