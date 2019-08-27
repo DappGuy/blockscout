@@ -1,6 +1,7 @@
 ## Current
 
 ### Features
+- [#2636](https://github.com/poanetwork/blockscout/pull/2636) - Execute all address' transactions page queries in parallel
 - [#2555](https://github.com/poanetwork/blockscout/pull/2555) - find and show decoding candidates for logs
 - [#2588](https://github.com/poanetwork/blockscout/pull/2588) - add verification submission comment
 - [#2581](https://github.com/poanetwork/blockscout/pull/2581) - Add generic Map-like Cache behaviour and implementation
