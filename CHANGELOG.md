@@ -13,6 +13,7 @@
 
 ### Fixes
 - [#2635](https://github.com/poanetwork/blockscout/pull/2635) - optimize ERC721 inventory query
+- [#2640](https://github.com/poanetwork/blockscout/pull/2640) - SVG network icons
 - [#2626](https://github.com/poanetwork/blockscout/pull/2626) - Fixing 2 Mobile UI Issues
 - [#2619](https://github.com/poanetwork/blockscout/pull/2619) - Enforce DB transaction's order to prevent deadlocks
 - [#2631](https://github.com/poanetwork/blockscout/pull/2631) - reinsert token transfers
