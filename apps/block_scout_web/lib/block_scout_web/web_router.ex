@@ -183,6 +183,13 @@ defmodule BlockScoutWeb.WebRouter do
         only: [:index],
         as: :inventory
       )
+
+      resources(
+        "/token_instance",
+        Tokens.InstanceController,
+        only: [:show],
+        as: :instance
+      )
     end
 
     resources(
