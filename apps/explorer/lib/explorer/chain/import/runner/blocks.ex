@@ -498,8 +498,6 @@ defmodule Explorer.Chain.Import.Runner.Blocks do
           inserted_at: over(min(address_token_balance.inserted_at), :w),
           updated_at: over(max(address_token_balance.updated_at), :w)
         },
-        # Enforce CurrentTokenBalance ShareLocks order (see docs: sharelocks.md)
-        order_by: [new_current_token_balance.address_hash, new_current_token_balance.token_contract_address_hash],
         windows: [
           w: [partition_by: [address_token_balance.address_hash, address_token_balance.token_contract_address_hash]]
         ]
@@ -514,10 +512,17 @@ defmodule Explorer.Chain.Import.Runner.Blocks do
       |> Multi.run(
         :insert_new_current_token_balance,
         fn repo, %{new_current_token_balance: new_current_token_balance} ->
+          # Enforce CurrentTokenBalance ShareLocks order (see docs: sharelocks.md)
+          ordered_current_token_balance =
+            Enum.sort_by(
+              new_current_token_balance,
+              &{&1.address_hash, &1.token_contract_address_hash}
+            )
+
           {_total, result} =
             repo.insert_all(
               Address.CurrentTokenBalance,
-              new_current_token_balance,
+              ordered_current_token_balance,
               # No `ON CONFLICT` because `delete_address_current_token_balances`
               # should have removed any conflicts.
               returning: [:address_hash, :token_contract_address_hash, :block_number, :value]
