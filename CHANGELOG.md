@@ -12,11 +12,11 @@
 - [#2470](https://github.com/poanetwork/blockscout/pull/2470) - Allow Realtime Fetcher to wait for small skips
 
 ### Fixes
-- [#2635](https://github.com/poanetwork/blockscout/pull/2635) - optimize ERC721 inventory query
 - [#2640](https://github.com/poanetwork/blockscout/pull/2640) - SVG network icons
+- [#2635](https://github.com/poanetwork/blockscout/pull/2635) - optimize ERC721 inventory query
+- [#2631](https://github.com/poanetwork/blockscout/pull/2631) - reinsert token transfers
 - [#2626](https://github.com/poanetwork/blockscout/pull/2626) - Fixing 2 Mobile UI Issues
 - [#2619](https://github.com/poanetwork/blockscout/pull/2619) - Enforce DB transaction's order to prevent deadlocks
-- [#2631](https://github.com/poanetwork/blockscout/pull/2631) - reinsert token transfers
 - [#2623](https://github.com/poanetwork/blockscout/pull/2623) - fix a blinking test
 - [#2616](https://github.com/poanetwork/blockscout/pull/2616) - deduplicate coin history records by delta
 - [#2613](https://github.com/poanetwork/blockscout/pull/2613) - fix getminedblocks rpc endpoint
