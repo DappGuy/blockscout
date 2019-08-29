@@ -8,7 +8,7 @@ defmodule Explorer.Chain.Import.Runner.Blocks do
   import Ecto.Query, only: [from: 2, lock: 2, order_by: 2, subquery: 1]
 
   alias Ecto.{Changeset, Multi, Repo}
-  alias Explorer.Chain.{Address, Block, Import, InternalTransaction, TokenTransfer, Transaction}
+  alias Explorer.Chain.{Address, Block, Import, InternalTransaction, Transaction}
   alias Explorer.Chain.Block.Reward
   alias Explorer.Chain.Import.Runner
   alias Explorer.Chain.Import.Runner.Address.CurrentTokenBalances
@@ -139,19 +139,20 @@ defmodule Explorer.Chain.Import.Runner.Blocks do
               hash: transaction.hash,
               inserted_at: type(^inserted_at, transaction.inserted_at),
               updated_at: type(^updated_at, transaction.updated_at)
-            },
-            # Enforce Transaction ShareLocks order (see docs: sharelocks.md)
-            order_by: transaction.hash
+            }
           )
 
         transactions = repo.all(query)
         {:ok, transactions}
       end)
       |> Multi.run(:insert_transaction_forks, fn repo, %{get_forks: transactions} ->
+        # Enforce Fork ShareLocks order (see docs: sharelocks.md)
+        ordered_forks = Enum.sort_by(transactions, &{&1.uncle_hash, &1.hash})
+
         {_total, result} =
           repo.insert_all(
             Transaction.Fork,
-            transactions,
+            ordered_forks,
             conflict_target: [:uncle_hash, :index],
             on_conflict:
               from(
@@ -291,17 +292,18 @@ defmodule Explorer.Chain.Import.Runner.Blocks do
       from(
         block in Block,
         where: block.number in ^ordered_consensus_block_number,
-        update: [
-          set: [
-            consensus: false,
-            updated_at: ^updated_at
-          ]
-        ],
-        select: [:hash, :number]
+        # Enforce Block ShareLocks order (see docs: sharelocks.md)
+        order_by: [asc: block.number, asc: block.hash],
+        lock: "FOR UPDATE"
       )
 
     try do
-      {_, result} = repo.update_all(query, [], timeout: timeout)
+      {_, result} =
+        repo.update_all(
+          from(b in Block, join: s in subquery(query), on: b.hash == s.hash, select: [:hash, :number]),
+          [set: [consensus: false, updated_at: updated_at]],
+          timeout: timeout
+        )
 
       {:ok, result}
     rescue
@@ -317,17 +319,18 @@ defmodule Explorer.Chain.Import.Runner.Blocks do
     query =
       from(
         block in where_invalid_neighbour,
-        update: [
-          set: [
-            consensus: false,
-            updated_at: ^updated_at
-          ]
-        ],
-        select: [:hash, :number]
+        # Enforce Block ShareLocks order (see docs: sharelocks.md)
+        order_by: [asc: block.number, asc: block.hash],
+        lock: "FOR UPDATE"
       )
 
     try do
-      {_, result} = repo.update_all(query, [], timeout: timeout)
+      {_, result} =
+        repo.update_all(
+          from(b in Block, join: s in subquery(query), on: b.hash == s.hash, select: [:hash, :number]),
+          [set: [consensus: false, updated_at: updated_at]],
+          timeout: timeout
+        )
 
       {:ok, result}
     rescue
@@ -547,11 +550,24 @@ defmodule Explorer.Chain.Import.Runner.Blocks do
     query =
       from(reward in Reward,
         inner_join: block in assoc(reward, :block),
-        where: block.hash in ^hashes or block.number in ^numbers
+        where: block.hash in ^hashes or block.number in ^numbers,
+        # Enforce Reward ShareLocks order (see docs: sharelocks.md)
+        order_by: [asc: :address_hash, asc: :address_type, asc: :block_hash],
+        # NOTE: find a better way to know the alias that ecto gives to token
+        lock: "FOR UPDATE OF b0"
+      )
+
+    delete_query =
+      from(r in Reward,
+        join: s in subquery(query),
+        on:
+          r.address_hash == s.address_hash and
+            r.address_type == s.address_type and
+            r.block_hash == s.block_hash
       )
 
     try do
-      {count, nil} = repo.delete_all(query, timeout: timeout)
+      {count, nil} = repo.delete_all(delete_query, timeout: timeout)
 
       {:ok, count}
     rescue
@@ -562,29 +578,35 @@ defmodule Explorer.Chain.Import.Runner.Blocks do
 
   defp update_block_second_degree_relations(repo, blocks, %{timeout: timeout, timestamps: %{updated_at: updated_at}})
        when is_list(blocks) do
-    ordered_uncle_hashes =
+    uncle_hashes =
       blocks
       |> MapSet.new(& &1.hash)
-      |> Enum.sort()
+      |> MapSet.to_list()
 
     query =
       from(
         bsdr in Block.SecondDegreeRelation,
-        where: bsdr.uncle_hash in ^ordered_uncle_hashes,
-        update: [
-          set: [
-            uncle_fetched_at: ^updated_at
-          ]
-        ]
+        where: bsdr.uncle_hash in ^uncle_hashes,
+        # Enforce SeconDegreeRelation ShareLocks order (see docs: sharelocks.md)
+        order_by: [asc: :nephew_hash, asc: :uncle_hash],
+        lock: "FOR UPDATE"
+      )
+
+    update_query =
+      from(
+        b in Block.SecondDegreeRelation,
+        join: s in subquery(query),
+        on: b.nephew_hash == s.nephew_hash and b.uncle_hash == s.uncle_hash,
+        update: [set: [uncle_fetched_at: ^updated_at]]
       )
 
     try do
-      {_, result} = repo.update_all(query, [], timeout: timeout)
+      {_, result} = repo.update_all(update_query, [], timeout: timeout)
 
       {:ok, result}
     rescue
       postgrex_error in Postgrex.Error ->
-        {:error, %{exception: postgrex_error, uncle_hashes: ordered_uncle_hashes}}
+        {:error, %{exception: postgrex_error, uncle_hashes: uncle_hashes}}
     end
   end
 

@@ -147,6 +147,15 @@ defmodule Explorer.Chain.Import.Runner.StakingPools do
         from(
           p in StakingPool,
           where: p.is_active == true,
+          # Enforce StackingPool ShareLocks order (see docs: sharelocks.md)
+          order_by: p.staking_address_hash,
+          lock: "FOR UPDATE"
+        )
+
+      update_query =
+        from(p in StakingPool,
+          join: s in subquery(query),
+          on: p.staking_address_hash == s.staking_address_hash,
           update: [
             set: [
               staked_ratio: p.staked_amount / ^total * 100,
@@ -155,7 +164,8 @@ defmodule Explorer.Chain.Import.Runner.StakingPools do
           ]
         )
 
-      {count, _} = repo.update_all(query, [], timeout: timeout)
+      {count, _} = repo.update_all(update_query, [], timeout: timeout)
+
       {:ok, count}
     else
       {:ok, 1}
