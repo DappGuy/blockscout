@@ -8,7 +8,7 @@ defmodule Explorer.Chain.Import.Runner.Blocks do
   import Ecto.Query, only: [from: 2, lock: 2, order_by: 2, subquery: 1]
 
   alias Ecto.{Changeset, Multi, Repo}
-  alias Explorer.Chain.{Address, Block, Import, InternalTransaction, TokenTransfer, Transaction}
+  alias Explorer.Chain.{Address, Block, Import, InternalTransaction, Transaction}
   alias Explorer.Chain.Block.Reward
   alias Explorer.Chain.Import.Runner
   alias Explorer.Chain.Import.Runner.Address.CurrentTokenBalances
@@ -74,9 +74,6 @@ defmodule Explorer.Chain.Import.Runner.Blocks do
     end)
     |> Multi.run(:delete_address_token_balances, fn repo, _ ->
       delete_address_token_balances(repo, ordered_consensus_block_numbers, insert_options)
-    end)
-    |> Multi.run(:delete_token_transfers, fn repo, _ ->
-      delete_token_transfers(repo, ordered_consensus_block_numbers, insert_options)
     end)
     |> Multi.run(:delete_address_current_token_balances, fn repo, _ ->
       delete_address_current_token_balances(repo, ordered_consensus_block_numbers, insert_options)
@@ -370,42 +367,6 @@ defmodule Explorer.Chain.Import.Runner.Blocks do
       {_count, deleted_address_token_balances} = repo.delete_all(query, timeout: timeout)
 
       {:ok, deleted_address_token_balances}
-    rescue
-      postgrex_error in Postgrex.Error ->
-        {:error, %{exception: postgrex_error, block_numbers: ordered_consensus_block_numbers}}
-    end
-  end
-
-  defp delete_token_transfers(_, [], _), do: {:ok, []}
-
-  defp delete_token_transfers(repo, ordered_consensus_block_numbers, %{timeout: timeout}) do
-    ordered_query =
-      from(token_transfer in TokenTransfer,
-        where: token_transfer.block_number in ^ordered_consensus_block_numbers,
-        select: map(token_transfer, [:transaction_hash, :log_index, :block_number]),
-        # Enforce TokenTransfer ShareLocks order (see docs: sharelocks.md)
-        order_by: [
-          token_transfer.transaction_hash,
-          token_transfer.log_index,
-          token_transfer.block_number
-        ],
-        lock: "FOR UPDATE"
-      )
-
-    query =
-      from(token_transfer in TokenTransfer,
-        select: map(token_transfer, [:transaction_hash, :log_index, :block_number]),
-        inner_join: ordered_token_transfer in subquery(ordered_query),
-        on:
-          ordered_token_transfer.transaction_hash == token_transfer.transaction_hash and
-            ordered_token_transfer.log_index == token_transfer.log_index and
-            ordered_token_transfer.block_number == token_transfer.block_number
-      )
-
-    try do
-      {_count, deleted_token_transfers} = repo.delete_all(query, timeout: timeout)
-
-      {:ok, deleted_token_transfers}
     rescue
       postgrex_error in Postgrex.Error ->
         {:error, %{exception: postgrex_error, block_numbers: ordered_consensus_block_numbers}}
