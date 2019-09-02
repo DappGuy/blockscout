@@ -307,8 +307,8 @@ msgstr ""
 
 #, elixir-format
 #: lib/block_scout_web/templates/address/_validator_metadata_modal.html.eex:37
-#: lib/block_scout_web/templates/address/overview.html.eex:143
-#: lib/block_scout_web/templates/address/overview.html.eex:151
+#: lib/block_scout_web/templates/address/overview.html.eex:145
+#: lib/block_scout_web/templates/address/overview.html.eex:153
 #: lib/block_scout_web/templates/tokens/instance/overview/_details.html.eex:105
 #: lib/block_scout_web/templates/tokens/instance/overview/_details.html.eex:113
 #: lib/block_scout_web/templates/tokens/overview/_details.html.eex:106
@@ -813,7 +813,7 @@ msgstr ""
 
 #, elixir-format
 #: lib/block_scout_web/templates/address/overview.html.eex:33
-#: lib/block_scout_web/templates/address/overview.html.eex:142
+#: lib/block_scout_web/templates/address/overview.html.eex:144
 #: lib/block_scout_web/templates/tokens/instance/overview/_details.html.eex:36
 #: lib/block_scout_web/templates/tokens/instance/overview/_details.html.eex:104
 #: lib/block_scout_web/templates/tokens/overview/_details.html.eex:36
@@ -824,6 +824,20 @@ msgstr ""
 #, elixir-format
 #: lib/block_scout_web/templates/transaction/overview.html.eex:227
 msgid "Gas"
+msgstr ""
+
+#, elixir-format
+#: lib/block_scout_web/templates/smart_contract/_functions.html.eex:22
+msgid "Query"
+msgstr ""
+
+#, elixir-format
+#: lib/block_scout_web/templates/address/_tabs.html.eex:58
+#: lib/block_scout_web/templates/tokens/instance/overview/_tabs.html.eex:10
+#: lib/block_scout_web/templates/tokens/overview/_tabs.html.eex:25
+#: lib/block_scout_web/views/address_view.ex:309
+#: lib/block_scout_web/views/tokens/overview_view.ex:37
+msgid "Read Contract"
 msgstr ""
 
 #, elixir-format
@@ -867,6 +881,13 @@ msgstr ""
 #: lib/block_scout_web/templates/internal_transaction/_tile.html.eex:38
 #: lib/block_scout_web/templates/transaction/_tile.html.eex:72
 msgid "IN"
+msgstr ""
+
+#, elixir-format
+#: lib/block_scout_web/templates/address/overview.html.eex:34
+#: lib/block_scout_web/templates/tokens/instance/overview/_details.html.eex:37
+#: lib/block_scout_web/templates/tokens/overview/_details.html.eex:37
+msgid "Show QR Code"
 msgstr ""
 
 #, elixir-format
@@ -916,6 +937,12 @@ msgstr ""
 #, elixir-format
 #: lib/block_scout_web/templates/internal_transaction/_tile.html.eex:6
 msgid "Internal Transaction"
+msgstr ""
+
+#, elixir-format
+#: lib/block_scout_web/templates/tokens/instance/overview/_details.html.eex:60
+#: lib/block_scout_web/templates/tokens/overview/_details.html.eex:61
+msgid "Transfers"
 msgstr ""
 
 #, elixir-format
@@ -992,6 +1019,12 @@ msgstr ""
 #: lib/block_scout_web/templates/address_coin_balance/index.html.eex:22
 #: lib/block_scout_web/templates/chain/show.html.eex:13
 msgid "Loading chart"
+msgstr ""
+
+#, elixir-format
+#: lib/block_scout_web/templates/tokens/instance/overview/_details.html.eex:55
+#: lib/block_scout_web/templates/tokens/overview/_details.html.eex:55
+msgid "View Contract"
 msgstr ""
 
 #, elixir-format
@@ -1861,4 +1894,10 @@ msgstr ""
 #: lib/block_scout_web/templates/block/overview.html.eex:81
 #: lib/block_scout_web/templates/layout/_topnav.html.eex:38
 msgid "Uncles"
+msgstr ""
+
+#, elixir-format
+#: lib/block_scout_web/templates/tokens/instance/overview/_details.html.eex:16
+#: lib/block_scout_web/templates/tokens/instance/overview/_details.html.eex:20
+msgid "Copy Token ID"
 msgstr ""
