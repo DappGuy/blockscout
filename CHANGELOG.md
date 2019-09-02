@@ -15,7 +15,7 @@
 
 ### Fixes
 - [#2659](https://github.com/poanetwork/blockscout/pull/2659) - Multipurpose front-end part update
-- [#2631](https://github.com/poanetwork/blockscout/pull/2631) - reinsert token transfers
+- [#2654](https://github.com/poanetwork/blockscout/pull/2654) - add an index on block_number for token transfers
 - [#2468](https://github.com/poanetwork/blockscout/pull/2468) - fix confirmations for non consensus blocks
 - [#2610](https://github.com/poanetwork/blockscout/pull/2610) - use CoinGecko instead of CoinMarketcap for exchange rates
 - [#2640](https://github.com/poanetwork/blockscout/pull/2640) - SVG network icons
