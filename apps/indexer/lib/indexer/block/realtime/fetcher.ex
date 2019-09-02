@@ -38,7 +38,7 @@ defmodule Indexer.Block.Realtime.Fetcher do
   @minimum_safe_polling_period :timer.seconds(10)
 
   @enforce_keys ~w(block_fetcher)a
-  defstruct ~w(block_fetcher subscription skipping_window_end previous_number max_number_seen timer)a
+  defstruct ~w(block_fetcher subscription previous_number max_number_seen timer)a
 
   @type t :: %__MODULE__{
           block_fetcher: %Block.Fetcher{
@@ -49,7 +49,6 @@ defmodule Indexer.Block.Realtime.Fetcher do
             receipts_concurrency: pos_integer()
           },
           subscription: Subscription.t(),
-          skipping_window_end: pos_integer() | nil,
           previous_number: pos_integer() | nil,
           max_number_seen: pos_integer() | nil
         }
@@ -78,7 +77,6 @@ defmodule Indexer.Block.Realtime.Fetcher do
         %__MODULE__{
           block_fetcher: %Block.Fetcher{} = block_fetcher,
           subscription: %Subscription{} = subscription,
-          skipping_window_end: skipping_window_end,
           previous_number: previous_number,
           max_number_seen: max_number_seen,
           timer: timer
@@ -115,7 +113,6 @@ defmodule Indexer.Block.Realtime.Fetcher do
         :poll_latest_block_number,
         %__MODULE__{
           block_fetcher: %Block.Fetcher{json_rpc_named_arguments: json_rpc_named_arguments} = block_fetcher,
-          skipping_window_end: _skipping_window_end,
           previous_number: previous_number,
           max_number_seen: max_number_seen
         } = state
@@ -136,8 +133,7 @@ defmodule Indexer.Block.Realtime.Fetcher do
     {:noreply,
      %{
        state
-       | skipping_window_end: nil,
-         previous_number: number,
+       | previous_number: number,
          max_number_seen: new_max_number,
          timer: timer
      }}
