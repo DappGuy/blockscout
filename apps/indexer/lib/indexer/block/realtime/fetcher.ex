@@ -123,7 +123,7 @@ defmodule Indexer.Block.Realtime.Fetcher do
     {number, new_max_number} =
       case EthereumJSONRPC.fetch_block_number_by_tag("latest", json_rpc_named_arguments) do
         {:ok, number} when is_nil(max_number_seen) or number > max_number_seen ->
-          start_fetch_and_import(number, block_fetcher, number, previous_number, number)
+          start_fetch_and_import(number, block_fetcher, previous_number, number)
 
           {max_number_seen, number}
 
