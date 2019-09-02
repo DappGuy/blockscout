@@ -373,6 +373,37 @@ defmodule Explorer.Chain.Import.Runner.Blocks do
     end
   end
 
+  defp delete_token_transfers(_, [], _), do: {:ok, []}
+
+  defp delete_token_transfers(repo, ordered_consensus_block_numbers, %{timeout: timeout}) do
+    ordered_query =
+      from(token_transfer in TokenTransfer,
+        where: token_transfer.block_number in ^ordered_consensus_block_numbers,
+        select: map(token_transfer, [:block_number]),
+        # Enforce TokenTransfer ShareLocks order (see docs: sharelocks.md)
+        order_by: [
+          token_transfer.block_number
+        ],
+        lock: "FOR UPDATE"
+      )
+
+    query =
+      from(token_transfer in TokenTransfer,
+        select: map(token_transfer, [:block_number, :transaction_hash, :log_index]),
+        inner_join: ordered_token_transfer in subquery(ordered_query),
+        on: ordered_token_transfer.block_number == token_transfer.block_number
+      )
+
+    try do
+      {_count, deleted_token_transfers} = repo.delete_all(query, timeout: timeout)
+
+      {:ok, deleted_token_transfers}
+    rescue
+      postgrex_error in Postgrex.Error ->
+        {:error, %{exception: postgrex_error, block_numbers: ordered_consensus_block_numbers}}
+    end
+  end
+
   defp delete_address_current_token_balances(_, [], _), do: {:ok, []}
 
   defp delete_address_current_token_balances(repo, ordered_consensus_block_numbers, %{timeout: timeout}) do
