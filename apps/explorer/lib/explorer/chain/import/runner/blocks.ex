@@ -8,7 +8,7 @@ defmodule Explorer.Chain.Import.Runner.Blocks do
   import Ecto.Query, only: [from: 2, lock: 2, order_by: 2, subquery: 1]
 
   alias Ecto.{Changeset, Multi, Repo}
-  alias Explorer.Chain.{Address, Block, Import, InternalTransaction, Transaction}
+  alias Explorer.Chain.{Address, Block, Import, InternalTransaction, TokenTransfer, Transaction}
   alias Explorer.Chain.Block.Reward
   alias Explorer.Chain.Import.Runner
   alias Explorer.Chain.Import.Runner.Address.CurrentTokenBalances
@@ -74,6 +74,9 @@ defmodule Explorer.Chain.Import.Runner.Blocks do
     end)
     |> Multi.run(:delete_address_token_balances, fn repo, _ ->
       delete_address_token_balances(repo, ordered_consensus_block_numbers, insert_options)
+    end)
+    |> Multi.run(:delete_token_transfers, fn repo, _ ->
+      delete_token_transfers(repo, ordered_consensus_block_numbers, insert_options)
     end)
     |> Multi.run(:delete_address_current_token_balances, fn repo, _ ->
       delete_address_current_token_balances(repo, ordered_consensus_block_numbers, insert_options)
