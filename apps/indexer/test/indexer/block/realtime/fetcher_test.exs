@@ -40,6 +40,11 @@ defmodule Indexer.Block.Realtime.FetcherTest do
     %{block_fetcher: block_fetcher, json_rpc_named_arguments: core_json_rpc_named_arguments}
   end
 
+  setup do
+    # run the tests with a realistic skipping window
+    Application.put_env(:indexer, :max_skipping_distance, 3)
+  end
+
   describe "Indexer.Block.Fetcher.fetch_and_import_range/1" do
     @tag :no_geth
     test "in range with internal transactions", %{
@@ -427,54 +432,40 @@ defmodule Indexer.Block.Realtime.FetcherTest do
 
   describe "determine_fetching_action/4" do
     test "when everything (except number) is nil results in fetching only the number" do
-      assert {:fetch_and_import, [14]} = Realtime.Fetcher.determine_fetching_action(14, nil, nil, nil)
+      assert [14] == Realtime.Fetcher.determine_fetching_action(14, nil, nil)
     end
 
     test "when number is also max_number_seen results in fetching only the number" do
-      # note: this is a way to force this behavior, used by :poll_latest_block_number
+      # note: this is a way to force this behavior, used by `poll_latest_block_number`
       number = 23
-      assert {:fetch_and_import, [number]} = Realtime.Fetcher.determine_fetching_action(number, nil, nil, number)
-      assert {:fetch_and_import, [number]} = Realtime.Fetcher.determine_fetching_action(number, 22, nil, number)
-      assert {:fetch_and_import, [number]} = Realtime.Fetcher.determine_fetching_action(number, nil, 21, number)
-      assert {:fetch_and_import, [number]} = Realtime.Fetcher.determine_fetching_action(number, 16, 27, number)
+      assert [number] == Realtime.Fetcher.determine_fetching_action(number, nil, number)
+      assert [number] == Realtime.Fetcher.determine_fetching_action(number, nil, number)
+      assert [number] == Realtime.Fetcher.determine_fetching_action(number, 21, number)
     end
 
-    test "when number is inside the skipping window nothing is fetched and the window in unchanged" do
-      skipping_window_end = 29
+    test "when number immediately follows the previous_number it is fetched" do
+      max_number_seen = 26
+      number = 27
+
+      assert [number] == Realtime.Fetcher.determine_fetching_action(number, nil, max_number_seen)
+    end
+
+    test "when number is inside the allowed skipping window nothing is fetched" do
       max_number_seen = 26
 
-      assert {:skip_to, skipping_window_end} =
-               Realtime.Fetcher.determine_fetching_action(27, skipping_window_end, nil, max_number_seen)
+      assert :skip == Realtime.Fetcher.determine_fetching_action(28, nil, max_number_seen)
+      assert :skip == Realtime.Fetcher.determine_fetching_action(29, nil, max_number_seen)
     end
 
-    test "when number does not directly follow max_number_seen it will create a window, but only if not too far and max_number_seen is the previous_number" do
-      max_number_seen = 294
-      max_skipping_distance = 4
-      Application.put_env(:indexer, :max_skipping_distance, max_skipping_distance)
-
-      number1 = max_number_seen + max_skipping_distance - 1
-
-      assert {:fetch_and_import, _} = Realtime.Fetcher.determine_fetching_action(number1, nil, nil, max_number_seen)
-
-      previous_number = max_number_seen
-
-      assert {:skip_to, number1} =
-               Realtime.Fetcher.determine_fetching_action(number1, nil, previous_number, max_number_seen)
-
-      number2 = max_number_seen + max_skipping_distance + 1
-
-      assert {:fetch_and_import, _} = Realtime.Fetcher.determine_fetching_action(number2, nil, nil, max_number_seen)
-    end
-
-    test "when number is over the esisting window all the values from the previous_number will be fetched" do
-      skipping_window_end = 394
+    test "when number is over the allowed skipping window all the values since the previous_number will be fetched" do
       max_number_seen = 390
       previous_number = 381
+      max_skipping_distance = Application.get_env(:indexer, :max_skipping_distance)
 
-      number = 400
+      number = max_number_seen + max_skipping_distance + 1
 
-      assert {:fetch_and_import, previous_number..number} =
-               Realtime.Fetcher.determine_fetching_action(number, skipping_window_end, previous_number, max_number_seen)
+      assert (previous_number + 1)..number ==
+               Realtime.Fetcher.determine_fetching_action(number, previous_number, max_number_seen)
     end
   end
 end

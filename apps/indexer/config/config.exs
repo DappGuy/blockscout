@@ -31,7 +31,7 @@ block_transformer =
 max_skipping_distance =
   case Integer.parse(System.get_env("MAX_SKIPPING_DISTANCE", "")) do
     {num, ""} -> num
-    _ -> 4
+    _ -> 5
   end
 
 config :indexer,

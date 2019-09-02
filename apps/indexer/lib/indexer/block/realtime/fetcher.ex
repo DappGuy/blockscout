@@ -88,17 +88,14 @@ defmodule Indexer.Block.Realtime.Fetcher do
     number = quantity_to_integer(quantity)
     # Subscriptions don't support getting all the blocks and transactions data,
     # so we need to go back and get the full block
-    fetching_result =
-      start_fetch_and_import(number, block_fetcher, skipping_window_end, previous_number, max_number_seen)
-
-    # The number may have not been inserted if it was part of a small skip
-    {new_previous_number, new_skipping_window_end, new_max_number} =
-      case fetching_result do
-        {:skip_to, new_skip_to} ->
-          {previous_number, new_skip_to, max_number_seen}
+    {new_previous_number, new_max_number} =
+      case start_fetch_and_import(number, block_fetcher, previous_number, max_number_seen) do
+        # The number may have not been inserted if it was part of a small skip
+        :skip ->
+          {previous_number, max_number_seen}
 
         _ ->
-          {number, nil, new_max_number(number, max_number_seen)}
+          {number, new_max_number(number, max_number_seen)}
       end
 
     Process.cancel_timer(timer)
@@ -107,8 +104,7 @@ defmodule Indexer.Block.Realtime.Fetcher do
     {:noreply,
      %{
        state
-       | skipping_window_end: new_skipping_window_end,
-         previous_number: new_previous_number,
+       | previous_number: new_previous_number,
          max_number_seen: new_max_number,
          timer: new_timer
      }}
@@ -221,35 +217,32 @@ defmodule Indexer.Block.Realtime.Fetcher do
     {:ok, []}
   end
 
-  defp start_fetch_and_import(number, block_fetcher, skipped_numbers, previous_number, max_number_seen) do
-    {action, value} = determine_fetching_action(number, skipped_numbers, previous_number, max_number_seen)
+  defp start_fetch_and_import(number, block_fetcher, previous_number, max_number_seen) do
+    fetching_action = determine_fetching_action(number, previous_number, max_number_seen)
 
-    if action == :fetch_and_import do
-      for block_number_to_fetch <- value do
+    if fetching_action != :skip do
+      for block_number_to_fetch <- fetching_action do
         args = [block_number_to_fetch, block_fetcher, reorg?(number, max_number_seen)]
         Task.Supervisor.start_child(TaskSupervisor, __MODULE__, :fetch_and_import_block, args)
       end
     end
 
-    {action, value}
+    fetching_action
   end
 
-  def determine_fetching_action(number, skipping_window_end, previous_number, max_number_seen) do
+  def determine_fetching_action(number, previous_number, max_number_seen) do
     cond do
       reorg?(number, max_number_seen) ->
-        {:fetch_and_import, [number]}
+        [number]
 
-      in_skipping_window?(number, max_number_seen, skipping_window_end) ->
-        {:skip_to, skipping_window_end}
-
-      new_skipping_window?(number, previous_number, max_number_seen, skipping_window_end) ->
-        {:skip_to, number}
+      can_be_skipped?(number, max_number_seen) ->
+        :skip
 
       is_nil(previous_number) ->
-        {:fetch_and_import, [number]}
+        [number]
 
       true ->
-        {:fetch_and_import, (previous_number + 1)..number}
+        (previous_number + 1)..number
     end
   end
 
@@ -259,24 +252,13 @@ defmodule Indexer.Block.Realtime.Fetcher do
 
   defp reorg?(_, _), do: false
 
-  defp in_skipping_window?(number, max_number_seen, skipping_window_end)
-       when is_integer(max_number_seen) and is_integer(skipping_window_end) do
-    number > max_number_seen and number < skipping_window_end
-  end
-
-  defp in_skipping_window?(_, _, _), do: false
-
-  defp new_skipping_window?(number, previous_number, max_number_seen, skipping_window_end)
-       when is_integer(max_number_seen) and is_nil(skipping_window_end) do
+  defp can_be_skipped?(number, max_number_seen) when is_integer(max_number_seen) and number > max_number_seen + 1 do
     max_skipping_distance = Application.get_env(:indexer, :max_skipping_distance)
 
-    max_skipping_distance > 1 and
-      previous_number == max_number_seen and
-      number > max_number_seen + 1 and
-      number <= max_number_seen + max_skipping_distance
+    max_skipping_distance > 1 and number <= max_number_seen + max_skipping_distance
   end
 
-  defp new_skipping_window?(_, _, _, _), do: false
+  defp can_be_skipped?(_, _), do: false
 
   @reorg_delay 5_000
 
