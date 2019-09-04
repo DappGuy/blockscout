@@ -135,7 +135,7 @@ msgstr ""
 
 #, elixir-format
 #: lib/block_scout_web/templates/address/index.html.eex:4
-#: lib/block_scout_web/templates/tokens/overview/_details.html.eex:60
+#: lib/block_scout_web/templates/tokens/overview/_details.html.eex:61
 msgid "Addresses"
 msgstr ""
 
@@ -1181,7 +1181,7 @@ msgstr ""
 #: lib/block_scout_web/templates/tokens/instance/overview/_details.html.eex:36
 #: lib/block_scout_web/templates/tokens/instance/overview/_details.html.eex:104
 #: lib/block_scout_web/templates/tokens/overview/_details.html.eex:36
-#: lib/block_scout_web/templates/tokens/overview/_details.html.eex:105
+#: lib/block_scout_web/templates/tokens/overview/_details.html.eex:109
 msgid "QR Code"
 msgstr ""
 
