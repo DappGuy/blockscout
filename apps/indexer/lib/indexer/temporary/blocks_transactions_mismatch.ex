@@ -128,7 +128,7 @@ defmodule Indexer.Temporary.BlocksTransactionsMismatch do
       from(block in Block,
         where: block.hash in ^hashes,
         # Enforce Block ShareLocks order (see docs: sharelocks.md)
-        order_by: [asc: block.number, asc: block.hash],
+        order_by: [asc: block.hash],
         lock: "FOR UPDATE"
       )
 

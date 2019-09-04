@@ -147,7 +147,7 @@ defmodule Explorer.Chain.Import.Runner.Blocks do
       end)
       |> Multi.run(:insert_transaction_forks, fn repo, %{get_forks: transactions} ->
         # Enforce Fork ShareLocks order (see docs: sharelocks.md)
-        ordered_forks = Enum.sort_by(transactions, &{&1.uncle_hash, &1.hash})
+        ordered_forks = Enum.sort_by(transactions, &{&1.uncle_hash, &1.index})
 
         {_total, result} =
           repo.insert_all(
@@ -224,7 +224,7 @@ defmodule Explorer.Chain.Import.Runner.Blocks do
     on_conflict = Map.get_lazy(options, :on_conflict, &default_on_conflict/0)
 
     # Enforce Block ShareLocks order (see docs: sharelocks.md)
-    ordered_changes_list = Enum.sort_by(changes_list, &{&1.number, &1.hash})
+    ordered_changes_list = Enum.sort_by(changes_list, & &1.hash)
 
     Import.insert_changes_list(
       repo,
@@ -293,7 +293,7 @@ defmodule Explorer.Chain.Import.Runner.Blocks do
         block in Block,
         where: block.number in ^ordered_consensus_block_number,
         # Enforce Block ShareLocks order (see docs: sharelocks.md)
-        order_by: [asc: block.number, asc: block.hash],
+        order_by: [asc: block.hash],
         lock: "FOR UPDATE"
       )
 
@@ -320,7 +320,7 @@ defmodule Explorer.Chain.Import.Runner.Blocks do
       from(
         block in where_invalid_neighbour,
         # Enforce Block ShareLocks order (see docs: sharelocks.md)
-        order_by: [asc: block.number, asc: block.hash],
+        order_by: [asc: block.hash],
         lock: "FOR UPDATE"
       )
 

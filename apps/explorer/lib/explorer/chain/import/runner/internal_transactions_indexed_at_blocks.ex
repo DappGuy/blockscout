@@ -61,7 +61,7 @@ defmodule Explorer.Chain.Import.Runner.InternalTransactionsIndexedAtBlocks do
         b in Block,
         where: b.number in ^block_numbers and b.consensus,
         # Enforce Block ShareLocks order (see docs: sharelocks.md)
-        order_by: [asc: b.number, asc: b.hash],
+        order_by: [asc: b.hash],
         lock: "FOR UPDATE"
       )
 

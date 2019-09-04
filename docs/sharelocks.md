@@ -70,9 +70,9 @@ transaction performing in a different order there is the possibility of a deadlo
 | Explorer.Chain.Address | addresses | asc: :hash |
 | Explorer.Chain.Address.CoinBalance | address_coin_balances | [asc: :address_hash, asc: :block_number] |
 | Explorer.Chain.Address.CurrentTokenBalance | address_current_token_balances | [asc: :address_hash, asc: :token_contract_address_hash] |
-| Explorer.Chain.Address.Name | address_names | asc: :address_hash |
+| Explorer.Chain.Address.Name | address_names | [asc: :address_hash, asc: :name] |
 | Explorer.Chain.Address.TokenBalance | address_token_balances | [asc: :address_hash, asc: :token_contract_address_hash, asc: :block_number] |
-| Explorer.Chain.Block | blocks | [asc: :number, asc: :hash] |
+| Explorer.Chain.Block | blocks | asc: :hash |
 | Explorer.Chain.Block.EmissionReward | emission_rewards | asc: :block_range |
 | Explorer.Chain.Block.Reward | block_rewards | [asc: :address_hash, asc: :address_type, asc: :block_hash] |
 | Explorer.Chain.Block.SecondDegreeRelation | block_second_degree_relations | [asc: :nephew_hash, asc: :uncle_hash] |
@@ -84,5 +84,5 @@ transaction performing in a different order there is the possibility of a deadlo
 | Explorer.Chain.Token | tokens | asc: :contract_address_hash |
 | Explorer.Chain.TokenTransfer | token_transfers | [asc: :transaction_hash, asc: :log_index]|
 | Explorer.Chain.Transaction | transactions | asc: :hash |
-| Explorer.Chain.Transaction.Fork | transaction_forks | [asc: :uncle_hash, asc: :hash] |
+| Explorer.Chain.Transaction.Fork | transaction_forks | [asc: :uncle_hash, asc: :index] |
 | Explorer.Market.MarketHistory | market_history | asc: :date |
