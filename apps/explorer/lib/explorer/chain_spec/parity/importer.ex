@@ -12,8 +12,6 @@ defmodule Explorer.ChainSpec.Parity.Importer do
   alias Explorer.ChainSpec.GenesisData
   alias Explorer.ChainSpec.POA.Importer, as: PoaEmissionImporter
 
-  import Ecto.Query
-
   @max_block_number :infinity
 
   def import_emission_rewards(chain_spec) do
