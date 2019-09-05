@@ -1,6 +1,7 @@
 ## Current
 
 ### Features
+- [#2667](https://github.com/poanetwork/blockscout/pull/2667) - Add ETS-based cache for accounts page
 - [#2666](https://github.com/poanetwork/blockscout/pull/2666) - fetch token counters in parallel
 - [#2663](https://github.com/poanetwork/blockscout/pull/2663) - Fetch address counters in parallel
 - [#2642](https://github.com/poanetwork/blockscout/pull/2642) - add ERC721 coin instance page
