@@ -27,12 +27,18 @@ config :explorer, Explorer.Counters.AverageBlockTime,
   enabled: true,
   period: average_block_period
 
-config :explorer, Explorer.ChainSpec.GenesisData, enabled: false, chain_spec_path: System.get_env("CHAIN_SPEC_PATH")
+config :explorer, Explorer.ChainSpec.GenesisData,
+  enabled: true,
+  chain_spec_path: System.get_env("CHAIN_SPEC_PATH"),
+  emission_format: System.get_env("EMISSION_FORMAT", "DEFAULT"),
+  rewards_contract_address: System.get_env("REWARDS_CONTRACT_ADDRESS", "0xeca443e8e1ab29971a45a9c57a6a9875701698a5")
 
 config :explorer, Explorer.Chain.Cache.BlockNumber,
   enabled: true,
   ttl_check_interval: if(System.get_env("DISABLE_INDEXER") == "true", do: :timer.seconds(1), else: false),
   global_ttl: if(System.get_env("DISABLE_INDEXER") == "true", do: :timer.seconds(5))
+
+config :explorer, Explorer.ExchangeRates.Source.CoinGecko, coin_id: System.get_env("COIN_GECKO_ID", "poa-network")
 
 balances_update_interval =
   if System.get_env("ADDRESS_WITH_BALANCES_UPDATE_INTERVAL") do

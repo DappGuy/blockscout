@@ -12,6 +12,7 @@
 - [#2581](https://github.com/poanetwork/blockscout/pull/2581) - Add generic Map-like Cache behaviour and implementation
 - [#2561](https://github.com/poanetwork/blockscout/pull/2561) - Add token's type to the response of tokenlist method
 - [#2555](https://github.com/poanetwork/blockscout/pull/2555) - find and show decoding candidates for logs
+- [#2505](https://github.com/poanetwork/blockscout/pull/2505) - support POA Network emission rewards
 - [#2499](https://github.com/poanetwork/blockscout/pull/2499) - import emission reward ranges
 - [#2497](https://github.com/poanetwork/blockscout/pull/2497) - Add generic Ordered Cache behaviour and implementation
 - [#2470](https://github.com/poanetwork/blockscout/pull/2470) - Allow Realtime Fetcher to wait for small skips
