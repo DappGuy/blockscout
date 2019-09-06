@@ -298,7 +298,7 @@ defmodule Explorer.Chain do
 
   defp wait_for_address_transactions(tasks) do
     tasks
-    |> Task.yield_many(:timer.seconds(60))
+    |> Task.yield_many(:timer.seconds(120))
     |> Enum.flat_map(fn {_task, res} ->
       case res do
         {:ok, result} ->
