@@ -10,6 +10,7 @@
 - [#2581](https://github.com/poanetwork/blockscout/pull/2581) - Add generic Map-like Cache behaviour and implementation
 
 ### Fixes
+- [#2684](https://github.com/poanetwork/blockscout/pull/2684) - do not filter pending logs
 - [#2682](https://github.com/poanetwork/blockscout/pull/2682) - Use Task.start instead of Task.async in caches
 - [#2660](https://github.com/poanetwork/blockscout/pull/2660) - set correct last value for coin balances chart data
 - [#2654](https://github.com/poanetwork/blockscout/pull/2654) - add an index on block_number for token transfers
