@@ -703,7 +703,7 @@ msgid "Error: Could not determine contract creator."
 msgstr ""
 
 #, elixir-format
-#: lib/block_scout_web/templates/chain/show.html.eex:155
+#: lib/block_scout_web/templates/chain/show.html.eex:192
 #: lib/block_scout_web/templates/pending_transaction/index.html.eex:10
 #: lib/block_scout_web/templates/transaction/index.html.eex:10
 msgid "More transactions have come in"
@@ -900,7 +900,7 @@ msgstr ""
 #: lib/block_scout_web/templates/address_transaction/index.html.eex:15
 #: lib/block_scout_web/templates/block_transaction/index.html.eex:10
 #: lib/block_scout_web/templates/block_transaction/index.html.eex:18
-#: lib/block_scout_web/templates/chain/show.html.eex:152
+#: lib/block_scout_web/templates/chain/show.html.eex:189
 #: lib/block_scout_web/templates/layout/_topnav.html.eex:50
 #: lib/block_scout_web/views/address_view.ex:305
 msgid "Transactions"
@@ -1006,8 +1006,7 @@ msgstr ""
 
 #, elixir-format
 #: lib/block_scout_web/templates/address_read_contract/index.html.eex:14
-#: lib/block_scout_web/templates/chain/show.html.eex:143
-#: lib/block_scout_web/templates/chain/show.html.eex:169
+#: lib/block_scout_web/templates/chain/show.html.eex:206
 #: lib/block_scout_web/templates/tokens/read_contract/index.html.eex:21
 msgid "Loading..."
 msgstr ""
@@ -1316,7 +1315,7 @@ msgid "Show Validator Info"
 msgstr ""
 
 #, elixir-format
-#: lib/block_scout_web/templates/chain/show.html.eex:161
+#: lib/block_scout_web/templates/chain/show.html.eex:198
 msgid "Something went wrong, click to retry."
 msgstr ""
 
@@ -1481,7 +1480,7 @@ msgid "View All Blocks"
 msgstr ""
 
 #, elixir-format
-#: lib/block_scout_web/templates/chain/show.html.eex:151
+#: lib/block_scout_web/templates/chain/show.html.eex:188
 msgid "View All Transactions"
 msgstr ""
 
